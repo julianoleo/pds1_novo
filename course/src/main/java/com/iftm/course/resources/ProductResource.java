@@ -1,5 +1,8 @@
 package com.iftm.course.resources;
+
 import java.util.List;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +34,20 @@ public class ProductResource {
 	public ResponseEntity<ProductDTO> findById(@PathVariable Long id){
 		return ResponseEntity.ok().body(productService.findById(id));
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<ProductDTO> insert(@RequestBody ProductCategoriesDTO dto) {
+	public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductCategoriesDTO dto) {
 		ProductDTO newDto = productService.insert(dto);
 		return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri())
 				.body(newDto);
 	}
-
+	
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		productService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
-
+	
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductCategoriesDTO dto) {
 		return ResponseEntity.ok().body(productService.update(id, dto));
