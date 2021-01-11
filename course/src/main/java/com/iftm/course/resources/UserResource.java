@@ -15,18 +15,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.iftm.course.dto.UserDTO;
 import com.iftm.course.dto.UserInsertDTO;
 import com.iftm.course.services.UserService;
+
 @RestController
 @RequestMapping(value = "/users")
 public class UserResource {
+
 	@Autowired
 	private UserService userService;
+
 	@GetMapping
 	public ResponseEntity<List<UserDTO>> findAll() {
 		return ResponseEntity.ok().body(userService.findAll());
 	}
+
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
 		return ResponseEntity.ok().body(userService.findById(id));
@@ -46,7 +51,7 @@ public class UserResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
+	public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
 		return ResponseEntity.ok().body(userService.update(id, dto));
 	}
 }
