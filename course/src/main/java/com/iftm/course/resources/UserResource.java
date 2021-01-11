@@ -17,44 +17,37 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.iftm.course.dto.UserDTO;
 import com.iftm.course.dto.UserInsertDTO;
+import com.iftm.course.entities.User;
 import com.iftm.course.services.UserService;
 
 @RestController
 @RequestMapping(value = "/users")
 public class UserResource {
-	
 	@Autowired
-	private UserService service;
-
+	private UserService userService;
 	@GetMapping
-	public ResponseEntity<List<UserDTO>> findAll() {		
-		List<UserDTO> list = service.findAll();
-		return ResponseEntity.ok().body(list);		
+	public ResponseEntity<List<UserDTO>> findAll() {
+		return ResponseEntity.ok().body(userService.findAll());
 	}
-	
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-		UserDTO dto = service.findById(id);
-		return ResponseEntity.ok().body(dto);	
+		return ResponseEntity.ok().body(userService.findById(id));
 	}
-	
-	@PostMapping 
+	@PostMapping
 	public ResponseEntity<UserDTO> insert(@RequestBody UserInsertDTO dto) {
-		UserDTO newDto= service.insert(dto);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri();
-		return ResponseEntity.created(uri).body(newDto);
+		return ResponseEntity
+				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri())
+				.body(userService.insert(dto));
 	}
 	
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id){
-		service.delete(id);
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		userService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 	
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
-		dto = service.update(id, dto);
-		return ResponseEntity.ok().body(dto);
+		return ResponseEntity.ok().body(userService.update(id, dto));
 	}
-	
 }

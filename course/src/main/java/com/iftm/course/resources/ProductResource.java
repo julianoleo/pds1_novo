@@ -1,20 +1,16 @@
 package com.iftm.course.resources;
-
-import java.net.URI;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.iftm.course.dto.ProductCategoriesDTO;
 import com.iftm.course.dto.ProductDTO;
 import com.iftm.course.services.ProductService;
 
@@ -23,17 +19,22 @@ import com.iftm.course.services.ProductService;
 public class ProductResource {
 	
 	@Autowired
-	private ProductService service;
-
+	private ProductService productService;
+	
 	@GetMapping
-	public ResponseEntity<List<ProductDTO>> findAll() {	
-		List<ProductDTO> list = service.findAll();
-		return ResponseEntity.ok().body(list);
+	public 	ResponseEntity<List<ProductDTO>> findAll() {
+		return ResponseEntity.ok().body(productService.findAll());
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
-		ProductDTO dto = service.findById(id);
-		return ResponseEntity.ok().body(dto);
-	}	
+	public ResponseEntity<ProductDTO> findById(@PathVariable Long id){
+		return ResponseEntity.ok().body(productService.findById(id));
+	}
+
+	@PostMapping
+	public ResponseEntity<ProductDTO> insert(@RequestBody ProductCategoriesDTO dto) {
+		ProductDTO newDto = productService.insert(dto);
+		return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDto.getId()).toUri())
+				.body(newDto);
+	}
 }
