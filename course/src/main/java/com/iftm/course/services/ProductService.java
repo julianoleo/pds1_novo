@@ -1,11 +1,15 @@
 package com.iftm.course.services;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +21,6 @@ import com.iftm.course.repositories.CategoryRepository;
 import com.iftm.course.repositories.ProductRepository;
 import com.iftm.course.services.exceptions.DatabaseException;
 import com.iftm.course.services.exceptions.ResourceNotFoundException;
-
 @Service
 public class ProductService {
 	@Autowired
@@ -25,9 +28,11 @@ public class ProductService {
 	
 	@Autowired
 	private CategoryRepository categoryRepository;
-	public List<ProductDTO> findAll() {
-		return productRepository.findAll().stream().map(e -> new ProductDTO(e)).collect(Collectors.toList());
+
+	public Page<ProductDTO> findAllPaged(Pageable pageable) {
+		return productRepository.findAll(pageable).map(e -> new ProductDTO(e));
 	}
+	
 	public ProductDTO findById(Long id) {
 		return new ProductDTO(productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id)));
 	}
@@ -42,8 +47,8 @@ public class ProductService {
 		entity.getCategories().clear();
 		for (CategoryDTO dto : categories) entity.getCategories().add(categoryRepository.getOne(dto.getId()));
 	}
-
-
+	
+	
 	public void delete(Long id) {
 		try {
 			productRepository.deleteById(id);
@@ -53,7 +58,7 @@ public class ProductService {
 			throw new DatabaseException(e.getMessage()); 
 		}
 	}
-
+	
 	@Transactional
 	public ProductDTO update(Long id, ProductCategoriesDTO dto) {
 		try {
