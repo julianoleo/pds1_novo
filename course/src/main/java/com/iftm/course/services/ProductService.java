@@ -1,19 +1,23 @@
 package com.iftm.course.services;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.iftm.course.dto.CategoryDTO;
 import com.iftm.course.dto.ProductCategoriesDTO;
 import com.iftm.course.dto.ProductDTO;
 import com.iftm.course.entities.Product;
 import com.iftm.course.repositories.CategoryRepository;
 import com.iftm.course.repositories.ProductRepository;
+import com.iftm.course.services.exceptions.DatabaseException;
 import com.iftm.course.services.exceptions.ResourceNotFoundException;
+
 @Service
 public class ProductService {
 	@Autowired
@@ -39,6 +43,17 @@ public class ProductService {
 		for (CategoryDTO dto : categories) entity.getCategories().add(categoryRepository.getOne(dto.getId()));
 	}
 
+
+	public void delete(Long id) {
+		try {
+			productRepository.deleteById(id);
+		} catch(EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException(id);
+		} catch(DataIntegrityViolationException e) {
+			throw new DatabaseException(e.getMessage()); 
+		}
+	}
+
 	@Transactional
 	public ProductDTO update(Long id, ProductCategoriesDTO dto) {
 		try {
@@ -49,7 +64,7 @@ public class ProductService {
 			throw new ResourceNotFoundException(id);
 		}
 	}
-
+	
 	private void updateData(Product entity, ProductCategoriesDTO dto) {
 		entity.setName(dto.getName());
 		entity.setDescription(dto.getDescription());
@@ -57,4 +72,4 @@ public class ProductService {
 		entity.setImgUrl(dto.getImgUrl());
 		if (dto.getCategories() != null && dto.getCategories().size() > 0) setProductCategories(entity, dto.getCategories());
 	}
-} 
+}
